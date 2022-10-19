@@ -26,6 +26,7 @@ type Runner struct {
 	maxCalls        int
 	jitter          bool
 	logger          Logger
+	counter         Counter
 }
 
 // New returns a runner with the defined options. If no options are given,
@@ -101,6 +102,20 @@ func WithLogger(l Logger) RunnerOptFn {
 	}
 }
 
+// WithCounter injects a counter that will be incremented when a backoff needs
+// to be performed.
+func WithCounter(c Counter) RunnerOptFn {
+	return func(r Runner) Runner {
+		r.counter = c
+		return r
+	}
+}
+
+// Counter is a metric that will be incremented if an error is encountered.
+type Counter interface {
+	Inc()
+}
+
 // New allows one to create a new runner, with any options, from an existing
 // runner type.
 func (r Runner) New(opts ...RunnerOptFn) Runner {
@@ -148,6 +163,10 @@ func (r Runner) Backoff(fn func() error) error {
 
 		if r.logger != nil {
 			r.logger.Warn("backoff", "calls", calls, "retry_after", backoff, "error", err)
+		}
+
+		if r.counter != nil {
+			r.counter.Inc()
 		}
 	}
 }
@@ -199,6 +218,10 @@ func (r Runner) BackoffCtx(ctx context.Context, fn func(context.Context) error) 
 
 		if r.logger != nil {
 			r.logger.Warn("backoff", "calls", calls, "retry_after", backoff, "error", err)
+		}
+
+		if r.counter != nil {
+			r.counter.Inc()
 		}
 	}
 }
