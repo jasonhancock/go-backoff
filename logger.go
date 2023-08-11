@@ -2,5 +2,5 @@ package backoff
 
 // Logger is the interface the Backoff will accept for logging messages.
 type Logger interface {
-	Warn(msg interface{}, keyvals ...interface{})
+	Warn(msg string, keyvals ...interface{})
 }
