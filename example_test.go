@@ -11,7 +11,7 @@ import (
 
 type myLogger struct{}
 
-func (l *myLogger) Warn(msg string, keyvals ...interface{}) {
+func (l *myLogger) Warn(msg any, keyvals ...any) {
 	fmt.Println(msg)
 }
 
